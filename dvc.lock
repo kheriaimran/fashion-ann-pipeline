@@ -1,0 +1,88 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - path: src/prepare.py
+      hash: md5
+      md5: 8a88445b2ae51d53f5ec9ed65d411e7e
+      size: 279
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: d9483780f897ad90022bc85ba3d8278b.dir
+      size: 54951002
+      nfiles: 1
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: d9483780f897ad90022bc85ba3d8278b.dir
+      size: 54951002
+      nfiles: 1
+    - path: src/preprocess.py
+      hash: md5
+      md5: 9ffa4cae6a1ee83fe1402c5013b3570c
+      size: 667
+    params:
+      params.yaml:
+        preprocess.seed: 42
+        preprocess.test_size: 0.1
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 25b00ad4dec72a3ade4cd35cacaf5faf.dir
+      size: 439111486
+      nfiles: 1
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 25b00ad4dec72a3ade4cd35cacaf5faf.dir
+      size: 439111486
+      nfiles: 1
+    - path: src/train.py
+      hash: md5
+      md5: 8b7310c9f1f467afa0abed0795f61e44
+      size: 849
+    params:
+      params.yaml:
+        train:
+          dense_units: 256
+          dropout_rate: 0.2
+          learning_rate: 0.001
+          epochs: 10
+          batch_size: 64
+    outs:
+    - path: models
+      hash: md5
+      md5: 660cc8aeb701fbd7fd2468155d022dde.dir
+      size: 2467705
+      nfiles: 2
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 25b00ad4dec72a3ade4cd35cacaf5faf.dir
+      size: 439111486
+      nfiles: 1
+    - path: models/model.h5
+      hash: md5
+      md5: e1ffc4bfbc980d381336a7705cd75688
+      size: 2466904
+    - path: src/evaluate.py
+      hash: md5
+      md5: 96b643a8c0c75620597087f8dcaf0360
+      size: 687
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: f61ad05ab855af70666e39f071c23e31
+      size: 71
+    - path: reports/confusion_matrix.png
+      hash: md5
+      md5: ab69e9432a326e4e3cda9be8df746d9c
+      size: 46441
